@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game with Categories & Levels</title>
+    <link rel="icon" href="https://img.freepik.com/free-vector/paper-style-ransom-note-letter-collection_23-2148979741.jpg?ga=GA1.1.1596016103.1734615121&semt=ais_hybrid" type="image/jpeg">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #220337;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: #f1f1f1;
+            font-size: 3rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .hang{
+            color: #b39874;
+        }
+
+        .category-select, .level-select {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 50px;
+        }
+
+        .category-option, .level-option {
+            cursor: pointer;
+            width: 150px;
+            height: 150px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+            position: relative;
+            text-align: center;
+        }
+
+        .category-option:hover, .level-option:hover {
+            transform: scale(1.1);
+        }
+
+        .category-option img, .level-option img {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            object-fit: cover;
+        }
+
+        .category-option-text, .level-option-text {
+            font-size: 1.2rem;
+            color: #f1f1f1;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .word {
+            font-size: 2rem;
+            letter-spacing: 10px;
+            margin-bottom: 20px;
+            color: #220337;
+        }
+
+        .attempts, .wrong-guesses {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            color: #f09b59;
+        }
+
+        .message {
+            font-size: 1.5rem;
+            color: #4CAF50;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .reset-btn, .home-btn {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            background-color: #57068c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .reset-btn:hover, .home-btn:hover {
+            background-color: white;
+            color: #57068c;
+        }
+
+        /* Virtual Keyboard */
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(13, 40px);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .key {
+            width: 40px;
+            height: 40px;
+            background-color: #e4e4e4;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .key:hover {
+            background-color: #b39874;
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .category-option, .level-option {
+                width: 100px;
+                height: 100px;
+            }
+            .keyboard {
+                grid-template-columns: repeat(10, 40px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="hang">Hangman Game</h1>
+    
+    <div class="category-select">
+        <div class="category-option" onclick="selectCategory('animals')">
+            <img src="https://img.freepik.com/premium-photo/world-animal-day-world-wildlife-day-groups-wild-beasts-were-gathered-hands-people_34998-712.jpg?ga=GA1.1.1596016103.1734615121&semt=ais_hybrid" alt="Animals">
+            <div class="category-option-text">Animals</div>
+        </div>
+        <div class="category-option" onclick="selectCategory('fruits')">
+            <img src="https://img.freepik.com/free-photo/mixed-fruits_74190-5177.jpg?ga=GA1.1.1596016103.1734615121&semt=ais_hybrid" alt="Fruits">
+            <div class="category-option-text">Fruits</div>
+        </div>
+        <div class="category-option" onclick="selectCategory('countries')">
+            <img src="https://img.freepik.com/premium-vector/seamless-pattern-with-suitcases-colors-national-flags_600765-11887.jpg?ga=GA1.1.1596016103.1734615121&semt=ais_hybrid" alt="Countries">
+            <div class="category-option-text">Countries</div>
+        </div>
+    </div>
+
+    
+    <div class="level-select" style="display: none;">
+        <div class="level-option" onclick="startGame('easy')">
+            <i class="fa-regular fa-face-smile" style="font-size: 150px; color: #4CAF50;"></i>
+            <div class="level-option-text">Easy</div>
+        </div>
+        <div class="level-option" onclick="startGame('medium')">
+            <i class="fa-regular fa-face-meh" style="font-size: 150px; color: #FF9800;"></i>
+            <div class="level-option-text">Medium</div>
+        </div>
+        <div class="level-option" onclick="startGame('hard')">
+            <i class="fa-solid fa-face-dizzy" style="font-size: 150px; color: #F44336;"></i>
+            <div class="level-option-text">Hard</div>
+        </div>
+    </div>
+
+    
+    <div class="game-container" id="gameContainer" style="display: none;">
+        <p class="category-label" id="categoryLabel"></p>
+        <p class="word" id="wordDisplay"></p>
+        <p class="attempts" id="attempts">Attempts Left: 6</p>
+        <p class="wrong-guesses" id="wrongGuesses"></p>
+        <p class="message" id="message"></p>
+        <button class="reset-btn" id="resetBtn" onclick="resetGame()">Play Again</button>
+        <button class="home-btn" id="homeBtn" onclick="goHome()">Home</button>
+    </div>
+
+    
+    <div class="keyboard" id="keyboardContainer" style="display: none;">
+        
+        <button class="key" onclick="handleGuess('a')">A</button>
+        <button class="key" onclick="handleGuess('b')">B</button>
+        <button class="key" onclick="handleGuess('c')">C</button>
+        <button class="key" onclick="handleGuess('d')">D</button>
+        <button class="key" onclick="handleGuess('e')">E</button>
+        <button class="key" onclick="handleGuess('f')">F</button>
+        <button class="key" onclick="handleGuess('g')">G</button>
+        <button class="key" onclick="handleGuess('h')">H</button>
+        <button class="key" onclick="handleGuess('i')">I</button>
+        <button class="key" onclick="handleGuess('j')">J</button>
+        <button class="key" onclick="handleGuess('k')">K</button>
+        <button class="key" onclick="handleGuess('l')">L</button>
+        <button class="key" onclick="handleGuess('m')">M</button>
+        <button class="key" onclick="handleGuess('n')">N</button>
+        <button class="key" onclick="handleGuess('o')">O</button>
+        <button class="key" onclick="handleGuess('p')">P</button>
+        <button class="key" onclick="handleGuess('q')">Q</button>
+        <button class="key" onclick="handleGuess('r')">R</button>
+        <button class="key" onclick="handleGuess('s')">S</button>
+        <button class="key" onclick="handleGuess('t')">T</button>
+        <button class="key" onclick="handleGuess('u')">U</button>
+        <button class="key" onclick="handleGuess('v')">V</button>
+        <button class="key" onclick="handleGuess('w')">W</button>
+        <button class="key" onclick="handleGuess('x')">X</button>
+        <button class="key" onclick="handleGuess('y')">Y</button>
+        <button class="key" onclick="handleGuess('z')">Z</button>
+    </div>
+
+    <script>
+        const categories = {
+            animals: {
+                easy: ["cat", "dog", "cow", "bat", "fish"],
+                medium: ["elephant", "giraffe", "kangaroo", "tiger", "panda"],
+                hard: ["hippopotamus", "chimpanzee", "crocodile", "alligator", "rhinoceros"]
+            },
+            fruits: {
+                easy: ["apple", "banana", "grape", "pear", "plum"],
+                medium: ["mango", "cherry", "orange", "kiwi", "papaya"],
+                hard: ["pomegranate", "blueberry", "watermelon", "pineapple", "blackberry"]
+            },
+            countries: {
+                easy: ["canada", "brazil", "india", "japan", "germany"],
+                medium: ["france", "italy", "australia", "mexico", "russia"],
+                hard: ["argentina", "colombia", "switzerland", "sri lanka", "portugal"]
+            }
+        };
+
+        let selectedCategory = "";
+        let selectedLevel = "";
+        let selectedWord = "";
+        let guessedLetters = [];
+        let wrongGuesses = [];
+        let attemptsLeft = 6;
+
+        
+        function selectCategory(category) {
+            selectedCategory = category;
+            document.querySelector(".category-select").style.display = "none";
+            document.querySelector(".level-select").style.display = "flex";
+        }
+
+        
+        function startGame(level) {
+            selectedLevel = level;
+            // Select a new word each time you start a game
+            selectedWord = categories[selectedCategory][selectedLevel][Math.floor(Math.random() * categories[selectedCategory][selectedLevel].length)];
+            guessedLetters = [];
+            wrongGuesses = [];
+            attemptsLeft = level === "easy" ? 8 : level === "medium" ? 6 : 4;
+
+            document.querySelector(".level-select").style.display = "none";
+            document.getElementById("gameContainer").style.display = "block";
+            document.getElementById("keyboardContainer").style.display = "block";
+            document.getElementById("categoryLabel").textContent = `Category: ${capitalizeFirstLetter(selectedCategory)} | Level: ${capitalizeFirstLetter(selectedLevel)}`;
+
+            updateGameState();
+        }
+
+        
+        function handleGuess(letter) {
+            if (guessedLetters.includes(letter) || wrongGuesses.includes(letter)) {
+                return;
+            }
+
+            if (selectedWord.includes(letter)) {
+                guessedLetters.push(letter);
+            } else {
+                wrongGuesses.push(letter);
+                attemptsLeft--;
+            }
+
+            updateGameState();
+        }
+
+        
+        function updateGameState() {
+            document.getElementById("attempts").textContent = `Attempts Left: ${attemptsLeft}`;
+            document.getElementById("wrongGuesses").textContent = `Wrong Guesses: ${wrongGuesses.join(", ")}`;
+
+            const wordDisplay = selectedWord.split("").map(letter => guessedLetters.includes(letter) ? letter : "_").join(" ");
+            document.getElementById("wordDisplay").textContent = wordDisplay;
+
+            if (attemptsLeft === 0) {
+                document.getElementById("message").textContent = `Game Over! The word was: ${selectedWord}`;
+                document.getElementById("resetBtn").style.display = "block";
+                document.getElementById("homeBtn").style.display = "block";
+            } else if (!wordDisplay.includes("_")) {
+                document.getElementById("message").textContent = "Congratulations! You won!";
+                document.getElementById("resetBtn").style.display = "block";
+                document.getElementById("homeBtn").style.display = "block";
+            }
+        }
+
+        
+        function resetGame() {
+            
+            selectedWord = categories[selectedCategory][selectedLevel][Math.floor(Math.random() * categories[selectedCategory][selectedLevel].length)];
+            guessedLetters = [];
+            wrongGuesses = [];
+            attemptsLeft = selectedLevel === "easy" ? 8 : selectedLevel === "medium" ? 6 : 4;
+
+            
+            document.getElementById("message").textContent = "";
+            document.getElementById("resetBtn").style.display = "none";
+            document.getElementById("homeBtn").style.display = "none";
+
+            updateGameState();
+        }
+        function goHome() {
+            document.querySelector(".category-select").style.display = "flex";
+            document.querySelector(".level-select").style.display = "none";
+            document.getElementById("gameContainer").style.display = "none";
+            document.getElementById("keyboardContainer").style.display = "none";
+            document.getElementById("resetBtn").style.display = "none";
+            document.getElementById("homeBtn").style.display = "none";
+        }
+        function capitalizeFirstLetter(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+    </script>
+</body>
+</html>
+
